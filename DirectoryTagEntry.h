@@ -17,8 +17,7 @@ namespace com::github::coderodde::dtpp4linux {
 
     public:
 
-        DirectoryTagEntry(std::string tagName_,
-                          std::string directoryName_);
+        DirectoryTagEntry(std::string tagName, std::string directoryName);
 
         const std::string& getTagName() const;
         const std::string& getDirectoryName() const;
@@ -41,6 +40,19 @@ namespace com::github::coderodde::dtpp4linux {
         friend void operator<<(std::ofstream& ofs, const DirectoryTagEntry& dte) {
             ofs << dte.getTagName() << " " << dte.getDirectoryName();
         }
+
+        static struct {
+            bool operator()(DirectoryTagEntry const& a, DirectoryTagEntry const& b) {
+                return a.getTagName() < b.getTagName();
+            }
+        } tagComparator;
+
+        static struct {
+            bool operator()(DirectoryTagEntry const& a, DirectoryTagEntry const& b) {
+                return a.getDirectoryName() < b.getDirectoryName();
+            }
+        } directoryComparator;
+
     };
 }
 

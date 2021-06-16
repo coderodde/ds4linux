@@ -20,9 +20,33 @@ const std::string& com::github::coderodde::dtpp4linux::DirectoryTagEntry
 const std::string& com::github::coderodde::dtpp4linux::DirectoryTagEntry
 ::getDirectoryName() const {
     return directoryName;
-}
+}        size_t getLevenshteinDistance(std::string str) const;
 
-void com::github::coderodde::dtpp4linux::DirectoryTagEntry
+        friend void operator>>(std::ifstream& ifs, DirectoryTagEntry& dte) {
+            std::string readTagName;
+            std::string readDirectoryName;
+
+            ifs >> readTagName >> readDirectoryName;
+
+            dte.setTagName(readTagName);
+            dte.setDirectoryName(readDirectoryName);
+        }
+
+        friend void operator<<(std::ofstream& ofs, const DirectoryTagEntry& dte) {
+            ofs << dte.getTagName() << " " << dte.getDirectoryName();
+        }
+
+        struct CompareByTag : public std::less<DirectoryTagEntry> {
+            bool operator<(DirectoryTagEntry const& a, DirectoryTagEntry const& b) {
+                return a.getTagName() < b.getTagName();
+            }
+        };
+
+        static struct {
+            bool operator()(DirectoryTagEntry const& a, DirectoryTagEntry const& b) {
+                return a.getTag() < b.getTag();
+            }
+        } tagComp
 ::setDirectoryName(const std::string& newDirectoryName) {
     this->directoryName = newDirectoryName;
 }

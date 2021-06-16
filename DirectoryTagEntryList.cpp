@@ -4,7 +4,9 @@
 
 #include "DirectoryTagEntry.h"
 #include "DirectoryTagEntryList.h"
+#include <algorithm>
 #include <limits>
+#include <string>
 
 using com::github::coderodde::dtpp4linux::DirectoryTagEntry;
 
@@ -13,15 +15,15 @@ const size_t com::github::coderodde::dtpp4linux
     return entries.size();
 }
 
-void com::github::coderodde::dtpp4linux
-::DirectoryTagEntryList::appendDirectoryTagEntry(
-        const DirectoryTagEntry& dte) {
-    entries.push_back(dte);
+com::github::coderodde::dtpp4linux::DirectoryTagEntryList&
+com::github::coderodde::dtpp4linux::DirectoryTagEntryList::operator<<(const DirectoryTagEntry &directoryTagEntry) {
+    entries.push_back(directoryTagEntry);
+    return *this;
 }
 
 DirectoryTagEntry com::github::coderodde::dtpp4linux
 ::DirectoryTagEntryList::operator[](size_t index) const {
-    return entries[index];
+    return entries.at(index);
 }
 
 DirectoryTagEntry com::github::coderodde::dtpp4linux
@@ -29,7 +31,7 @@ DirectoryTagEntry com::github::coderodde::dtpp4linux
     const DirectoryTagEntry* ptrBestDirectoryEntry;
     size_t bestLevenshteinDistance = std::numeric_limits<size_t>::max();
 
-    for (const DirectoryTagEntry const& dte : entries) {
+    for (DirectoryTagEntry const& dte : entries) {
         size_t levenshteinDistance = dte.getLevenshteinDistance(targetDirectoryName);
 
         if (levenshteinDistance == 0) {
@@ -43,4 +45,29 @@ DirectoryTagEntry com::github::coderodde::dtpp4linux
     }
 
     return *ptrBestDirectoryEntry;
+}
+
+void com::github::coderodde::dtpp4linux::DirectoryTagEntryList::operator<<(std::ifstream& ifs) {
+
+    using std::string;
+
+    while (ifs.good()) {
+        string tag;
+        ifs >> tag;
+
+        char buffer[PATH_MAX];
+        ifs.getline(buffer, PATH_MAX);
+        string path(buffer);
+
+        DirectoryTagEntry newDirectoryEntry(tag, path);
+        entries.push_back(newDirectoryEntry);
+    }
+}
+
+void com::github::coderodde::dtpp4linux::DirectoryTagEntryList::sortByTags() {
+    std::stable_sort( entries.begin(), entries.end(), DirectoryTagEntry::tagComparator);
+}
+
+void com::github::coderodde::dtpp4linux::DirectoryTagEntryList::sortByDirectories() {
+    std::stable_sort(entries.begin(), entries.end(),  DirectoryTagEntry::directoryComparator);
 }

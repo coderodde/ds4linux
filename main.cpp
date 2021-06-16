@@ -2,6 +2,7 @@
 #include "DirectoryTagEntryList.h"
 #include <iostream>
 #include <cstdlib>
+#include <fstream>
 #include <string>
 #include <cstring>
 #include <linux/limits.h>
@@ -60,16 +61,27 @@ static void updatePreviousDirectory(
 
 }
 
-int main() {
+int main(int argc, char *args[]) {
 
+    using std::cerr;
     using std::cout;
+    using std::string;
     using com::github::coderodde::dtpp4linux::DirectoryTagEntry;
+    using com::github::coderodde::dtpp4linux::DirectoryTagEntryList;
+    using std::ifstream;
 
-    cout << getTagFilePath() << "\n";
-    DirectoryTagEntry e("bin", "/usr/local/bin");
+    ifstream fs;
+    string tagFilePath = getTagFilePath();
+    fs.open(tagFilePath);
 
+    if (!fs.is_open()) {
+        cerr << "Error: Couuld not open the file \"" << tagFilePath << "\"\n.";
+        return EXIT_FAILURE;
+    }
 
-    cout << e.getLevenshteinDistance("xdind") << "\n";
+    DirectoryTagEntryList directoryTagEntryList;
 
-    return 0;
+    directoryTagEntryList << fs;
+    cout << directoryTagEntryList.size() << "\n";
+    return EXIT_SUCCESS;
 }
