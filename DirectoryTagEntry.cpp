@@ -8,6 +8,8 @@
 
 namespace com::github::coderodde::dtpp4linux {
 
+    using std::size_t;
+
     DirectoryTagEntry::DirectoryTagEntry(
         std::string tagName_,
         std::string directoryName_) :
@@ -41,8 +43,8 @@ namespace com::github::coderodde::dtpp4linux {
             distanceMatrix[0][i] = i;
         }
 
-        for (int i1 = 1; i1 < len1; i1++) {
-            for (int i2 = 1; i2 < len2; i2++) {
+        for (size_t i1 = 1; i1 < len1; i1++) {
+            for (size_t i2 = 1; i2 < len2; i2++) {
                 size_t cost = (str[i1 - 1] == tagName[i2 - 1] ? 0 : 1);
 
                 distanceMatrix[i1][i2] =

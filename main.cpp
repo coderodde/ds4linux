@@ -11,6 +11,8 @@
 #include <vector>
 
 using com::github::coderodde::dtpp4linux::DirectoryTagEntryList;
+using std::cerr;
+using std::cout;
 
 const std::string RELATIVE_TAG_FILE_PATH = "/.dt/tags";
 
@@ -62,12 +64,60 @@ const std::string PREV_TAG_NAME = "__dt_previous";
 using com::github::coderodde::dtpp4linux::DirectoryTagEntry;
 using com::github::coderodde::dtpp4linux::DirectoryTagEntryList;
 
-
-
 static void updatePreviousDirectory(
         DirectoryTagEntryList& directoryTagEntryList,
         const std::string& newDirectoryName) {
 
+    DirectoryTagEntry dte = directoryTagEntryList[newDirectoryName];
+
+}
+
+static int switchDirectory(std::string const& tag) {
+    DirectoryTagEntryList directoryTagEntryList;
+    std::ifstream ifs;
+    std::string tagFilePath = getTagFilePath();
+    ifs.open(tagFilePath, std::ifstream::in);
+
+    if (!ifs.good()) {
+        cerr << "Error: could not open the tag file \"" 
+             << tagFilePath
+             << "\"\n";
+    }
+
+    ifs >> directoryTagEntryList;
+
+    if (directoryTagEntryList.size() == 0) {
+        cout << OPERATION_DESCRIPTOR_MESSAGE 
+             << "\n"
+             << "Warning: the tag file is empty.";
+
+        return EXIT_SUCCESS;
+    }
+
+    if (directoryTagEntryList.size() == 1) {
+        cout << OPERATION_SWITCH_DIRECTORY
+             << "\n"
+             << directoryTagEntryList[0].getDirectoryName();
+
+        updatePreviousDirectory(
+            directoryTagEntryList,
+            getCurrentWorkingDirectory());
+
+        std::ofstream ofs;
+        ofs.open(getTagFilePath(), std::ofstream::out);
+
+        directoryTagEntryList >> ofs;
+
+        return EXIT_SUCCESS;
+    }
+
+    DirectoryTagEntry bestMatch = directoryTagEntryList[tag];
+
+    // New line?
+    cout << OPERATION_SWITCH_DIRECTORY
+         << bestMatch.getDirectoryName();
+
+    return EXIT_SUCCESS;
 }
 
 int main(int argc, char *args[]) {

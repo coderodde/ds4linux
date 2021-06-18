@@ -56,24 +56,44 @@ namespace com::github::coderodde::dtpp4linux {
 
         using std::string;
 
-        while (ifs.good()) {
-            string tag;
-            ifs >> tag;
-
-            char buffer[PATH_MAX];
-            ifs.getline(buffer, PATH_MAX);
-            string path(buffer);
-
-            DirectoryTagEntry newDirectoryEntry(tag, path);
-            entries.push_back(newDirectoryEntry);
-        }
     }
 
     void DirectoryTagEntryList::sortByTags() {
-        std::stable_sort( entries.begin(), entries.end(), DirectoryTagEntry::tagComparator);
+        std::stable_sort(entries.begin(), entries.end(), DirectoryTagEntry::tagComparator);
     }
 
     void DirectoryTagEntryList::sortByDirectories() {
         std::stable_sort(entries.begin(), entries.end(),  DirectoryTagEntry::directoryComparator);
+    }
+
+    void operator>>(
+        std::ifstream& ifs,
+        DirectoryTagEntryList& directoryTagEntryList) {
+
+        while (ifs.good()) {
+            std::string tag;
+            ifs >> tag;
+
+            char buffer[PATH_MAX];
+            ifs.getline(buffer, PATH_MAX);
+            std::string path(buffer);
+
+            DirectoryTagEntry newDirectoryEntry(tag, path);
+            directoryTagEntryList << newDirectoryEntry;
+        }
+    }
+
+    void operator>>(DirectoryTagEntryList const& directoryTagEntryList,
+                    std::ofstream& ofs) {
+        for (size_t i = 0, sz = directoryTagEntryList.size();
+            i < sz;
+            i++) {
+            DirectoryTagEntry const& dte = directoryTagEntryList[i];
+            ofs << dte.getTagName() << " " << dte.getDirectoryName();
+
+            if (i < sz - 1) {
+                ofs << "\n";
+            }
+        }
     }
 }
