@@ -13,7 +13,7 @@ namespace com::github::coderodde::dtpp4linux {
     class DirectoryTagEntryList {
     private:
         std::vector<DirectoryTagEntry> entries;
-
+        
     public:
         const size_t size() const;
         DirectoryTagEntryList& operator<<(DirectoryTagEntry const& directoryTagEntry);
@@ -22,6 +22,8 @@ namespace com::github::coderodde::dtpp4linux {
         void operator<<(std::ifstream& ifs);
         void sortByTags();
         void sortByDirectories();
+        void listTags();
+        void listTagsAndDirectories();
     };
 }
 
