@@ -31,8 +31,7 @@ namespace com::github::coderodde::dtpp4linux {
             std::string readTagName;
             std::string readDirectoryName;
 
-            ifs >> readTagName >> readDirectoryName;
-
+            std::getline(ifs, readDirectoryName);
             dte.setTagName(readTagName);
             dte.setDirectoryName(readDirectoryName);
         }
@@ -52,7 +51,6 @@ namespace com::github::coderodde::dtpp4linux {
                 return a.getDirectoryName() < b.getDirectoryName();
             }
         } directoryComparator;
-
     };
 }
 

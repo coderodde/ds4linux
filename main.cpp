@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include <vector>
 
+using com::github::coderodde::dtpp4linux::DirectoryTagEntryList;
+
 const std::string RELATIVE_TAG_FILE_PATH = "/.dt/tags";
 
 static const std::string getTagFilePath() {
@@ -25,18 +27,23 @@ static const std::string getTagFilePath() {
 }
 
 static const std::string getCurrentWorkingDirectory() {
-    char* working_dir = (char*) std::malloc(PATH_MAX);
+    char* working_dir = new char[PATH_MAX];
     working_dir = getcwd(working_dir, PATH_MAX);
-    return std::string(working_dir);
+    std::string rv = working_dir;
+    delete[] working_dir;
+    return rv;
 }
 
-static size_t computeEditDistance(const std::string& str1,
-                                  const std::string& str2) {
-    std::vector<std::vector<char>> dist_matrix();
+static const size_t getMaximumTagLength(DirectoryTagEntryList const& dtel) {
+    size_t maximumTagLength = 0;
 
+    for (size_t index = 0, sz = dtel.size(); index < sz; index++) {
+        maximumTagLength = 
+            std::max(maximumTagLength,
+                     dtel[index].getTagName().length());
+    }
 
-
-    return 0;
+    return maximumTagLength;
 }
 
 const std::string OPERATION_DESCRIPTOR_MESSAGE = "message";
@@ -54,6 +61,8 @@ const std::string PREV_TAG_NAME = "__dt_previous";
 
 using com::github::coderodde::dtpp4linux::DirectoryTagEntry;
 using com::github::coderodde::dtpp4linux::DirectoryTagEntryList;
+
+
 
 static void updatePreviousDirectory(
         DirectoryTagEntryList& directoryTagEntryList,

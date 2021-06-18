@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <limits>
 #include <string>
+#include <linux/limits.h>
 
 using com::github::coderodde::dtpp4linux::DirectoryTagEntry;
 
