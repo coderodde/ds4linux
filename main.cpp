@@ -7,6 +7,7 @@
 #include <cstring>
 #include <linux/limits.h>
 #include <pwd.h>
+#include <stdexcept>
 #include <unistd.h>
 #include <vector>
 
@@ -125,8 +126,74 @@ static int switchDirectory(std::string const& tag) {
     return EXIT_SUCCESS;
 }
 
+static void listTagsOnly(
+    DirectoryTagEntryList const& directoryTagEntryList) {
+    for (size_t index = 0, sz = directoryTagEntryList.size();
+         index < sz;
+         index++) {
+        std::cout << 
+            directoryTagEntryList.at(index).getTagName()
+            << '\n';
+    }
+}
+
+static void listTagsAndDirectories(
+        DirectoryTagEntryList const& directoryTagEntryList) {
+    for (size_t index = 0, sz = directoryTagEntryList.size(); 
+         index < sz; 
+         index++) {
+        DirectoryTagEntry const& directoryTagEntry =
+            directoryTagEntryList.at(index);
+
+        std::cout << directoryTagEntry.getTagName() 
+                  << ' '
+                  << directoryTagEntry.getDirectoryName()
+                  << '\n';
+    }
+}
+
+static void listTags(std::string const& flag) {
+    std::ifstream ifs;
+    ifs.open(getTagFilePath(), std::ifstream::in);
+
+    DirectoryTagEntryList directoryTagEntryList;
+    ifs >> directoryTagEntryList;
+
+    if (flag == FLAG_LIST_TAGS_SORTED 
+        || flag == FLAG_LIST_BOTH_SORTED) {
+        directoryTagEntryList.sortByTags();
+    } else if (flag == FLAG_LIST_BOTH_SORTED_DIRS) {
+        directoryTagEntryList.sortByDirectories();
+    }
+
+    if (flag == FLAG_LIST_TAGS_SORTED
+        || flag == FLAG_LIST_TAGS) {
+        listTagsOnly(directoryTagEntryList);
+    } else if (flag == FLAG_LIST_BOTH 
+        || flag == FLAG_LIST_BOTH_SORTED
+        || flag == FLAG_LIST_BOTH_SORTED_DIRS) {
+        listTagsAndDirectories(directoryTagEntryList);
+    } else {
+        std::string errorMessage = "Bad flag \"";
+        errorMessage += flag;
+        errorMessage += "\"";
+        std::invalid_argument const& except{errorMessage};
+        throw except;
+    }
+}
+
 static int processSingleFlag(std::string const& flag) {
     std::cout << "flag = " << flag << '\n';
+
+    if (flag == FLAG_LIST_BOTH
+        || flag == FLAG_LIST_TAGS
+        || flag == FLAG_LIST_TAGS_SORTED
+        || flag == FLAG_LIST_BOTH_SORTED
+        || flag == FLAG_LIST_BOTH_SORTED_DIRS) {
+        listTags(flag);
+    } else {
+        switchDirectory(flag);
+    }
 
     switchDirectory(flag);
 
