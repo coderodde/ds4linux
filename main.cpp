@@ -36,17 +36,17 @@ static const std::string getCurrentWorkingDirectory() {
     return rv;
 }
 
-static const size_t getMaximumTagLength(DirectoryTagEntryList const& dtel) {
+/*static const size_t getMaximumTagLength(DirectoryTagEntryList const& dtel) {
     size_t maximumTagLength = 0;
 
     for (size_t index = 0, sz = dtel.size(); index < sz; index++) {
         maximumTagLength = 
             std::max(maximumTagLength,
-                     dtel[index].getTagName().length());
+                     dtel.at(index).getTagName().length());
     }
 
     return maximumTagLength;
-}
+}*/
 
 const std::string OPERATION_DESCRIPTOR_MESSAGE = "message";
 const std::string OPERATION_SWITCH_DIRECTORY = "switch_directory";
@@ -64,12 +64,19 @@ const std::string PREV_TAG_NAME = "__dt_previous";
 using com::github::coderodde::dtpp4linux::DirectoryTagEntry;
 using com::github::coderodde::dtpp4linux::DirectoryTagEntryList;
 
-static void updatePreviousDirectory(
-        DirectoryTagEntryList& directoryTagEntryList,
+static int updatePreviousDirectory(
         const std::string& newDirectoryName) {
 
-    DirectoryTagEntry dte = directoryTagEntryList[newDirectoryName];
+    std::string tagFilePath = getTagFilePath();
+    std::ifstream ifs;
+    ifs.open(tagFilePath, std::ifstream::in);
 
+    DirectoryTagEntryList directoryTagEntryList;
+    ifs >> directoryTagEntryList;
+
+    std::cout << "updatePreviousDirectory: " << directoryTagEntryList.size() << '\n';
+
+    return EXIT_SUCCESS;
 }
 
 static int switchDirectory(std::string const& tag) {
@@ -99,9 +106,7 @@ static int switchDirectory(std::string const& tag) {
              << "\n"
              << directoryTagEntryList[0].getDirectoryName();
 
-        updatePreviousDirectory(
-            directoryTagEntryList,
-            getCurrentWorkingDirectory());
+        updatePreviousDirectory(getCurrentWorkingDirectory());
 
         std::ofstream ofs;
         ofs.open(getTagFilePath(), std::ofstream::out);
@@ -120,7 +125,15 @@ static int switchDirectory(std::string const& tag) {
     return EXIT_SUCCESS;
 }
 
-int main(int argc, char *args[]) {
+static int processSingleFlag(std::string const& flag) {
+    std::cout << "flag = " << flag << '\n';
+
+    switchDirectory(flag);
+
+    return EXIT_SUCCESS;
+}
+
+int main(int argc, char *argv[]) {
 
     using std::cerr;
     using std::cout;
@@ -129,6 +142,18 @@ int main(int argc, char *args[]) {
     using com::github::coderodde::dtpp4linux::DirectoryTagEntryList;
     using std::ifstream;
 
+    if (argc == 1) {
+        //jumpToPreviousDirectory();
+    } else if (argc == 2) {
+        processSingleFlag(argv[1]);
+    } else if (argc == 3) {
+        updatePreviousDirectory(argv[2]);
+    } else {
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+/*
     ifstream fs;
     string tagFilePath = getTagFilePath();
     fs.open(tagFilePath);
@@ -142,5 +167,5 @@ int main(int argc, char *args[]) {
 
     directoryTagEntryList << fs;
     cout << directoryTagEntryList.size() << "\n";
-    return EXIT_SUCCESS;
+    return EXIT_SUCCESS;*/
 }

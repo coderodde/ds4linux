@@ -24,9 +24,7 @@ namespace com::github::coderodde::dtpp4linux {
         return *this;
     }
 
-    DirectoryTagEntry DirectoryTagEntryList::operator[](
-        size_t index) const {
-    
+    DirectoryTagEntry DirectoryTagEntryList::at(size_t index) const {
         return entries.at(index);
     }
 
@@ -88,7 +86,7 @@ namespace com::github::coderodde::dtpp4linux {
         for (size_t i = 0, sz = directoryTagEntryList.size();
             i < sz;
             i++) {
-            DirectoryTagEntry const& dte = directoryTagEntryList[i];
+            DirectoryTagEntry const& dte = directoryTagEntryList.at(i);
             ofs << dte.getTagName() << " " << dte.getDirectoryName();
 
             if (i < sz - 1) {

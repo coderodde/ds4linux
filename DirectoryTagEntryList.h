@@ -17,8 +17,8 @@ namespace com::github::coderodde::dtpp4linux {
     public:
         const size_t size() const;
         DirectoryTagEntryList& operator<<(DirectoryTagEntry const& directoryTagEntry);
-        DirectoryTagEntry operator[](size_t index) const;
-        DirectoryTagEntry operator[](const std::string& targetDirectoryName);
+        DirectoryTagEntry at(size_t index) const;
+        DirectoryTagEntry operator[](std::string const& targetDirectoryName);
         void operator<<(std::ifstream& ifs);
         void sortByTags();
         void sortByDirectories();
