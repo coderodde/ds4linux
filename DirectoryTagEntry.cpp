@@ -24,6 +24,14 @@ namespace com::github::coderodde::dtpp4linux {
         return directoryName;
     }      
 
+    void DirectoryTagEntry::setTagName(const std::string& newTagName) {
+        tagName = newTagName;
+    }
+
+    void DirectoryTagEntry::setDirectoryName(const std::string& newDirectoryName) {
+        directoryName = newDirectoryName;
+    }
+
     size_t DirectoryTagEntry::getLevenshteinDistance(const std::string str) const {
         const size_t len1 = str.length() + 1;
         const size_t len2 = tagName.length() + 1;
