@@ -1,0 +1,19 @@
+out_file=$(mktemp)
+~/.dt/dt $@ > $out_file
+command_type=$(head -n 1 $out_file)
+
+if [ $# -eq 0 ]; then
+	next_path=$(echo $command_type | tail -n 1)
+	cd $next_path	
+eles
+	if [ "$command_type" == "switch_directory" ]; then
+		next_path=$(tail -n 1 $out_file)
+		cd $next_path
+	elif [ "$command_type" == "show_tag_entry_list" ]; then
+		tail -n +2 $out_file
+	else
+		echo "Unknown command: $command_type"
+	fi
+fi
+
+rm $tmp_file_name

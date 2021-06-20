@@ -24,4 +24,4 @@ else
         echo "Unknown command: $command_type"
     fi
 fi
-#rm $tmp_file_name
+rm $tmp_file_name
