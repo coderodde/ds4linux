@@ -24,7 +24,6 @@ using std::string;
 //// ///////////////////
  // Operation names: //
 /////////////////// ////
-const string OPERATION_DESCRIPTOR_MESSAGE = "message";
 const string OPERATION_SWITCH_DIRECTORY = "switch_directory";
 const string OPERATION_DESCRIPTOR_SHOW_TAG_ENTRY_LIST =
         "show_tag_entry_list";
@@ -32,7 +31,6 @@ const string OPERATION_DESCRIPTOR_SHOW_TAG_ENTRY_LIST =
 //// /////////////////
  // All the flags: //
 ///////////////// ////
-const string FLAG_UPDATE_PREVIOUS = "--update-previous";
 const string FLAG_LIST_TAGS = "-l";
 const string FLAG_LIST_BOTH = "-L";
 const string FLAG_LIST_TAGS_SORTED = "-s";
@@ -162,11 +160,11 @@ static int switchDirectory(std::string const& tag) {
     std::string tagFilePath = getTagFilePath();
     ifs.open(tagFilePath, std::ifstream::in);
 
-    if (!ifs.good()) {
+    if (!ifs.good()) {/*
         cout << OPERATION_DESCRIPTOR_MESSAGE
              << "\nError: could not open the tag file \""
              << tagFilePath
-             << "\"";
+             << "\"";*/
 
         return EXIT_FAILURE;
     }
@@ -279,7 +277,7 @@ static void listTagsAndDirectories(
 //// /////////////////////////////////
  // Decided how to print the tags: //
 ///////////////////////////////// ////
-static void listTags(std::string const& flag) {
+static int listTags(std::string const& flag) {
     std::ifstream ifs;
     ifs.open(getTagFilePath(), std::ifstream::in);
 
@@ -301,60 +299,33 @@ static void listTags(std::string const& flag) {
         || flag == FLAG_LIST_BOTH_SORTED_DIRS) {
         listTagsAndDirectories(directoryTagEntryList);
     } else {
-        std::string errorMessage = "Bad flag \"";
-        errorMessage += flag;
-        errorMessage += "\"";
-        std::invalid_argument const& except{errorMessage};
-        throw except;
+        return EXIT_FAILURE;
     }
+
+    return EXIT_SUCCESS;
 }
 
 //// ///////////////////////////////
  // Processes a single flag/tag: //
 /////////////////////////////// ////
-static void processSingleFlag(std::string const& flag) {
-    if (flag == FLAG_LIST_BOTH
-        || flag == FLAG_LIST_TAGS
-        || flag == FLAG_LIST_TAGS_SORTED
-        || flag == FLAG_LIST_BOTH_SORTED
-        || flag == FLAG_LIST_BOTH_SORTED_DIRS) {
-        listTags(flag);
+static int processSingleFlag(std::string const& arg) {
+    if (arg == FLAG_LIST_BOTH
+        || arg == FLAG_LIST_TAGS
+        || arg == FLAG_LIST_TAGS_SORTED
+        || arg == FLAG_LIST_BOTH_SORTED
+        || arg == FLAG_LIST_BOTH_SORTED_DIRS) {
+        return listTags(arg);
     } else {
-        switchDirectory(flag);
+        return switchDirectory(arg);
     }
 }
 
 int main(int argc, char *argv[]) {
     if (argc == 1) {
-        jumpToPreviousDirectory();
+        return jumpToPreviousDirectory();
     } else if (argc == 2) {
-        processSingleFlag(argv[1]);
-    } else if (argc == 3) {
-        string arg{argv[1]};
-
-        if (arg != FLAG_UPDATE_PREVIOUS) {
-            return EXIT_FAILURE;
-        }
-
-        DirectoryTagEntryList dtel;
-        ifstream ifs;
-        ifs.open(getTagFilePath(), ifstream::in);
-
-        if (!ifs.is_open()) {
-            return EXIT_FAILURE;
-        }
-
-        if (!ifs.good()) {
-            ifs.close();
-            return EXIT_FAILURE;
-        }
-
-        ifs >> dtel;
-        string newDir{argv[2]};
-        updatePreviousDirectory(dtel, newDir);
+        return processSingleFlag(argv[1]);
     } else {
         return EXIT_FAILURE;
     }
-
-    return EXIT_SUCCESS;
 }

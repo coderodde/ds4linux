@@ -1,27 +1,20 @@
-tmp_file_name=$(mktemp)	
-~/.dt/dt $@ > $tmp_file_name
-command_type=$(head -n 1 $tmp_file_name)
+out_file=$(mktemp)
+~/.dt/dt_engine $@ > $out_file
+echo "command type: $command_type, $out_file"
+command_type=$(head -n 1 $out_file)
 
 if [ $# -eq 0 ]; then
-    next_path=$(~/.dt/dt __dt_previous | tail -n 1)
-    ~/.dt/dt --update-previous $(pwd)
-    if [ "$command_type" == "message" ]; then
-        tail -n 1 $tmp_file_name
-    else
-        cd $next_path
-    fi
+	next_path=$(echo $command_type | tail -n 1)
+	cd $next_path	
 else
-    command_type=$(head -n 1 $tmp_file_name)
-    if [ "$command_type" == "switch_directory" ]; then
-        next_path=$(tail -n 1 $tmp_file_name)
-        ~/.dt/dt --update-previous $(pwd)
-        cd $next_path
-    elif [ "$command_type" == "show_tag_entry_list" ]; then
-        tail -n +2 $tmp_file_name  
-    elif [ "$command_type" == "message" ]; then
-        tail -n 1 $tmp_file_name
-    else
-        echo "Unknown command: $command_type"
-    fi
+	if [ "$command_type" == "switch_directory" ]; then
+		next_path=$(tail -n 1 $out_file)
+		cd $next_path
+	elif [ "$command_type" == "show_tag_entry_list" ]; then
+		tail -n +2 $out_file
+	else
+		echo "Unknown command: $command_type"
+	fi
 fi
-rm $tmp_file_name
+
+rm $out_file

@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-script_magic="alias dt='source ~/.dt/dt_script2"
+script_magic="alias dt='source ~/.dt/dt_script"
 
 echo "Installing dt..."
 
@@ -34,10 +34,14 @@ add_tag_to_file () {
 # Populate the default 
 echo "Populating the tag file with default tags..."
 
-add_tag_to_file "docs", "~/Documents"
-add_tag_to_file "down", "~/Downloads"
-add_tag_to_file "root", "/"
-add_tag_to_file "home", "~"
+add_tag_to_file "docs" "~/Documents"
+add_tag_to_file "down" "~/Downloads"
+add_tag_to_file "root" "/"
+add_tag_to_file "home" "~"
 
 echo "Done populating the tag file with default tags."
+echo "Copying the script..."
+
+cp dt_script ~/.dt/dt_script
+
 echo "Done! dt will be available for use in your next shell session. :-]"
