@@ -10,6 +10,8 @@
 #include <linux/limits.h>
 
 using com::github::coderodde::dtpp4linux::DirectoryTagEntry;
+using std::getline;
+using std::string;
 
 namespace com::github::coderodde::dtpp4linux {
 
@@ -68,15 +70,18 @@ namespace com::github::coderodde::dtpp4linux {
         std::ifstream& ifs,
         DirectoryTagEntryList& directoryTagEntryList) {
 
-        while (ifs.good()) {
-            std::string tag;
+        while (ifs.good() && !ifs.eof()) {
+
+            string tag;
             ifs >> tag;
 
-            char buffer[PATH_MAX];
-            ifs.getline(buffer, PATH_MAX);
-            std::string path(buffer);
+            // Grab the rest of the line. 
+            // We need this isntead of >> in order to obtain 
+            // the space characters in the directory names.
+            string dir;
+            getline(ifs, dir);
 
-            DirectoryTagEntry newDirectoryEntry(tag, path);
+            DirectoryTagEntry newDirectoryEntry(tag, dir);
             directoryTagEntryList << newDirectoryEntry;
         }
     }

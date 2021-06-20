@@ -17,6 +17,7 @@ using com::github::coderodde::dtpp4linux::DirectoryTagEntryList;
 using std::cerr;
 using std::cout;
 using std::ifstream;
+using std::ofstream;
 using std::setw;
 using std::string;
 
@@ -86,26 +87,70 @@ static const size_t getMaximumTagLength(DirectoryTagEntryList const& dtel) {
 //// //////////////////////////////////
  // Updates the previous directory: //
 ////////////////////////////////// ////
-static void updatePreviousDirectory(
+static string updatePreviousDirectory(
         DirectoryTagEntryList& directoryTagEntryList,
         string& newDirectoryName) {
-
 
     DirectoryTagEntry dte = directoryTagEntryList[PREV_TAG_NAME];
 
     if (dte.getTagName() == PREV_TAG_NAME) {
+        string rv = dte.getDirectoryName();
         dte.setDirectoryName(newDirectoryName);
+        return rv;
     } else {
         DirectoryTagEntry ndte(PREV_TAG_NAME, newDirectoryName);
         directoryTagEntryList << ndte;
+        return getCurrentWorkingDirectory();
     }
 }
 
 //// //////////////////////////////////////////////////////////////////
  // Jumps to the directory to which dt was switching most recently: //
 ////////////////////////////////////////////////////////////////// ////
-static void jumpToPreviousDirectory() {
+static int jumpToPreviousDirectory() {
+    string tagFilePath = getTagFilePath();
+    ifstream ifs;
+    ifs.open(tagFilePath, std::ifstream::in);
 
+    if (!ifs.is_open() || !ifs.good()) {
+        return EXIT_FAILURE;
+    }
+
+    DirectoryTagEntryList directoryTagEntryList;
+    ifs >> directoryTagEntryList;
+
+
+    DirectoryTagEntry directoryTagEntry = directoryTagEntryList[PREV_TAG_NAME];
+    string nextPath;
+    string currentWorkingDirectory = getCurrentWorkingDirectory();
+
+    if (directoryTagEntry.getTagName() == PREV_TAG_NAME) {
+        nextPath = directoryTagEntry.getDirectoryName();
+        updatePreviousDirectory(directoryTagEntryList, 
+                                currentWorkingDirectory);
+    } else {
+        DirectoryTagEntry prevTagEntry(PREV_TAG_NAME,
+                                       currentWorkingDirectory);
+
+        directoryTagEntryList << prevTagEntry;
+        nextPath = currentWorkingDirectory;
+    }
+
+    ofstream ofs;
+    ofs.open(tagFilePath, ofstream::out);
+
+    if (!ofs.is_open() || !ofs.good()) {
+        return EXIT_FAILURE;
+    }
+
+    directoryTagEntryList >> ofs;
+    ofs.close();
+
+    cout << OPERATION_SWITCH_DIRECTORY
+         << '\n'
+         << nextPath;
+
+    return EXIT_SUCCESS;
 }
 
 //// /////////////////////////////
@@ -118,23 +163,37 @@ static int switchDirectory(std::string const& tag) {
     ifs.open(tagFilePath, std::ifstream::in);
 
     if (!ifs.good()) {
-        cerr << "Error: could not open the tag file \"" 
+        cout << OPERATION_DESCRIPTOR_MESSAGE
+             << "\nError: could not open the tag file \""
              << tagFilePath
-             << "\"\n";
+             << "\"";
+
+        return EXIT_FAILURE;
     }
 
     ifs >> directoryTagEntryList;
 
-    if (directoryTagEntryList.size() == 0) {
-        string currentWorkingDirectory = getCurrentWorkingDirectory();
-        
-        updatePreviousDirectory(
-            directoryTagEntryList,
-            currentWorkingDirectory);
+    string currentWorkingDirectory = getCurrentWorkingDirectory();
 
-        cout << OPERATION_DESCRIPTOR_MESSAGE 
-             << "\n"
-             << "Warning: the tag file is empty; previous directory added.";
+    if (directoryTagEntryList.size() == 0) {
+        string nextDirectory = 
+            updatePreviousDirectory(
+                directoryTagEntryList,
+                currentWorkingDirectory);
+
+        std::ofstream ofs;
+        ofs.open(getTagFilePath(), std::ofstream::out);
+
+        if (!ofs.is_open() || !ofs.good()) {
+            return EXIT_FAILURE;
+        }
+
+        directoryTagEntryList >> ofs;
+        ofs.close();
+
+        cout << OPERATION_SWITCH_DIRECTORY
+             << '\n'
+             << nextDirectory;
 
         return EXIT_SUCCESS;
     }
@@ -144,20 +203,35 @@ static int switchDirectory(std::string const& tag) {
              << "\n"
              << directoryTagEntryList[0].getDirectoryName();
 
-        string currentWorkingDirectory = getCurrentWorkingDirectory();
-
         updatePreviousDirectory(directoryTagEntryList,
-                                currentWorkingDirectory);
+                                currentWorkingDirectory)  ;
 
         std::ofstream ofs;
         ofs.open(getTagFilePath(), std::ofstream::out);
 
-        directoryTagEntryList >> ofs;
+        if (!ofs.is_open() || !ofs.good()) {
+            return EXIT_FAILURE;
+        }
 
+        directoryTagEntryList >> ofs;
+        ofs.close();
         return EXIT_SUCCESS;
     }
 
     DirectoryTagEntry bestMatch = directoryTagEntryList[tag];
+
+    std::ofstream ofs;
+    ofs.open(getTagFilePath(), std::ofstream::out);
+
+    if (!ofs.is_open() || !ofs.good()) {
+        return EXIT_FAILURE;
+    }
+
+    updatePreviousDirectory(directoryTagEntryList, 
+                            currentWorkingDirectory);
+
+    directoryTagEntryList >> ofs;
+    ofs.close();
 
     // New line?
     cout << OPERATION_SWITCH_DIRECTORY
