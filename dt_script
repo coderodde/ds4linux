@@ -8,6 +8,12 @@ if [ $# -eq 0 ]; then
 else
 	if [ "$command_type" == "switch_directory" ]; then
 		next_path=$(tail -n 1 $out_file)
+
+		if [ ! -d "$next_path" ]; then
+			echo 2> "Directory \"$next_path\" does not exist."
+			exit 1
+		fi
+
 		cd $next_path
 	elif [ "$command_type" == "show_tag_entry_list" ]; then
 		tail -n +2 $out_file

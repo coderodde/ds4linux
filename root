@@ -1,7 +1,0 @@
-root /root
-usr /usr
-home ~
-docs ~/Documents
-down ~/Downloads
-dt ~/.dt
-__dt_previous /home/rodde/CLionProjects/dtpp4linux

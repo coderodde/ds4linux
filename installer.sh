@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 
-script_magic="alias dt='source ~/.dt/dt_script"
+script_magic="alias ds='source ~/.ds/ds_script"
 
-echo "Installing dt..."
+echo "Installing ds..."
 
 grep "$script_magic" ~/.bashrc 
 
@@ -15,12 +15,12 @@ fi
 
 # Create files:
 echo "Creating files..."
-mkdir -p ~/.dt
-echo "Created the .dt directory."
+mkdir -p ~/.ds
+echo "Created the .ds directory."
 make > /dev/null
-cp dt_engine ~/.dt/dt_engine
+cp dt_engine ~/.ds/ds_engine
 echo "Built the dt_engine."
-tag_file=~/.dt/tags
+tag_file=~/.ds/tags
 touch tag_file
 
 add_tag_to_file () {
@@ -38,10 +38,11 @@ add_tag_to_file "docs" "~/Documents"
 add_tag_to_file "down" "~/Downloads"
 add_tag_to_file "root" "/"
 add_tag_to_file "home" "~"
+add_tag_to_file "ds", "~/.ds"
 
 echo "Done populating the tag file with default tags."
 echo "Copying the script..."
 
-cp dt_script ~/.dt/dt_script
+cp ds_script ~/.ds/ds_script
 
 echo "Done! dt will be available for use in your next shell session. :-]"

@@ -102,6 +102,33 @@ static string updatePreviousDirectory(
     }
 }
 
+//// //////////////////////////////////////////////////
+ // Returns the home directory of the current user: //
+////////////////////////////////////////////////// ////
+static string getHomeDirectory() {
+    return string(getpwuid(getuid())->pw_dir);
+}
+
+static string convertDirectoryNameToExactDirectoryName(string dir) {
+    if (dir.size() == 0) {
+        throw "Should not happen.";
+    }
+
+    if (dir[0] != '~') {
+        return dir;
+    }
+
+    string homeDirectory = getHomeDirectory();
+    auto iter = dir.cbegin();
+    std::advance(iter, 1);
+
+    for (auto it = iter; it != dir.cend(); ++it) {
+        homeDirectory.push_back(*it);
+    }
+    cout << "homeDirectory: " << homeDirectory << "\n";
+    return homeDirectory;
+}
+
 //// //////////////////////////////////////////////////////////////////
  // Jumps to the directory to which dt was switching most recently: //
 ////////////////////////////////////////////////////////////////// ////
@@ -146,7 +173,7 @@ static int jumpToPreviousDirectory() {
 
     cout << OPERATION_SWITCH_DIRECTORY
          << '\n'
-         << nextPath
+         << convertDirectoryNameToExactDirectoryName(nextPath)
          << std::flush;
 
     return EXIT_SUCCESS;
@@ -192,7 +219,7 @@ static int switchDirectory(std::string const& tag) {
 
         cout << OPERATION_SWITCH_DIRECTORY
              << '\n'
-             << nextDirectory;
+             << convertDirectoryNameToExactDirectoryName(nextDirectory);
 
         return EXIT_SUCCESS;
     }
@@ -235,7 +262,8 @@ static int switchDirectory(std::string const& tag) {
     // New line?
     cout << OPERATION_SWITCH_DIRECTORY
          << '\n'
-         << bestMatch.getDirectoryName();
+         << convertDirectoryNameToExactDirectoryName(
+                bestMatch.getDirectoryName());
 
     return EXIT_SUCCESS;
 }
