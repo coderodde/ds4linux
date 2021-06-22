@@ -1,11 +1,11 @@
 out_file=$(mktemp)
-~/.dt/dt_engine $@ > $out_file
+~/.dt/dt $@ > $out_file
 command_type=$(head -n 1 $out_file)
-
+echo "command_type: $command_type"
 if [ $# -eq 0 ]; then
 	next_path=$(tail -n 1 $out_file)
 	cd $next_path	
-else
+eles
 	if [ "$command_type" == "switch_directory" ]; then
 		next_path=$(tail -n 1 $out_file)
 		cd $next_path

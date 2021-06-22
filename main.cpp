@@ -146,7 +146,8 @@ static int jumpToPreviousDirectory() {
 
     cout << OPERATION_SWITCH_DIRECTORY
          << '\n'
-         << nextPath;
+         << nextPath
+         << std::flush;
 
     return EXIT_SUCCESS;
 }
@@ -244,6 +245,9 @@ static int switchDirectory(std::string const& tag) {
 ////////////////////////////////////// ////
 static void listTagsOnly(
     DirectoryTagEntryList const& directoryTagEntryList) {
+
+    cout << OPERATION_DESCRIPTOR_SHOW_TAG_ENTRY_LIST << '\n';
+
     for (size_t index = 0, sz = directoryTagEntryList.size();
          index < sz;
          index++) {
@@ -258,6 +262,8 @@ static void listTagsOnly(
 ////////////////////////////// ////
 static void listTagsAndDirectories(
         DirectoryTagEntryList const& directoryTagEntryList) {
+    cout << OPERATION_DESCRIPTOR_SHOW_TAG_ENTRY_LIST << '\n';
+
     size_t maxTagLength = getMaximumTagLength(directoryTagEntryList);
 
     for (size_t index = 0, sz = directoryTagEntryList.size(); 
