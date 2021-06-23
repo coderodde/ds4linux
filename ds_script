@@ -4,6 +4,7 @@ command_type=$(head -n 1 $out_file)
 
 if [ $# -eq 0 ]; then
 	next_path=$(tail -n 1 $out_file)
+	~/.ds/ds_engine --update-previous $(pwd)
 	cd $next_path	
 else
 	if [ "$command_type" == "switch_directory" ]; then
@@ -14,6 +15,7 @@ else
 			exit 1
 		fi
 
+		~/.ds/ds_engine --update-previous $(pwd)
 		cd $next_path
 	elif [ "$command_type" == "show_tag_entry_list" ]; then
 		tail -n +2 $out_file
