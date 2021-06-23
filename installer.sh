@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-script_magic="alias ds='source ~/.ds/ds_script"
+script_magic="alias ds='source ~/.ds/ds_script'"
 
 echo "Installing ds..."
 
@@ -18,8 +18,8 @@ echo "Creating files..."
 mkdir -p ~/.ds
 echo "Created the .ds directory."
 make > /dev/null
-cp dt_engine ~/.ds/ds_engine
-echo "Built the dt_engine."
+cp ds_engine ~/.ds/ds_engine
+echo "Built the ds_engine."
 tag_file=~/.ds/tags
 touch tag_file
 
@@ -45,4 +45,4 @@ echo "Copying the script..."
 
 cp ds_script ~/.ds/ds_script
 
-echo "Done! dt will be available for use in your next shell session. :-]"
+echo "Done! ds will be available for use in your next shell session. :-]"

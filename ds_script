@@ -1,5 +1,5 @@
 out_file=$(mktemp)
-~/.dt/dt_engine $@ > $out_file
+~/.ds/ds_engine $@ > $out_file
 command_type=$(head -n 1 $out_file)
 
 if [ $# -eq 0 ]; then
