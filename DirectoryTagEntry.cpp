@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-namespace com::github::coderodde::dtpp4linux {
+namespace com::github::coderodde::ds4mac {
 
     using std::size_t;
 

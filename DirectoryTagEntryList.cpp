@@ -7,13 +7,13 @@
 #include <algorithm>
 #include <limits>
 #include <string>
-#include <linux/limits.h>
+//#include <linux/limits.h>
 
-using com::github::coderodde::dtpp4linux::DirectoryTagEntry;
+using com::github::coderodde::ds4mac::DirectoryTagEntry;
 using std::getline;
 using std::string;
 
-namespace com::github::coderodde::dtpp4linux {
+namespace com::github::coderodde::ds4mac {
 
     const size_t DirectoryTagEntryList::size() const {
         return entries.size();
@@ -30,17 +30,17 @@ namespace com::github::coderodde::dtpp4linux {
         return entries.at(index);
     }
 
-    DirectoryTagEntry DirectoryTagEntryList::operator[](
+    DirectoryTagEntry* DirectoryTagEntryList::operator[](
         const std::string& targetDirectoryName) {
     
-        const DirectoryTagEntry* ptrBestDirectoryEntry;
+        DirectoryTagEntry* ptrBestDirectoryEntry;
         size_t bestLevenshteinDistance = std::numeric_limits<size_t>::max();
 
-        for (DirectoryTagEntry const& dte : entries) {
+        for (DirectoryTagEntry& dte : entries) {
             size_t levenshteinDistance = dte.getLevenshteinDistance(targetDirectoryName);
 
             if (levenshteinDistance == 0) {
-                return dte;
+                return &dte;
             }
 
             if (bestLevenshteinDistance > levenshteinDistance) {
@@ -49,7 +49,7 @@ namespace com::github::coderodde::dtpp4linux {
             }
         }
 
-        return *ptrBestDirectoryEntry;
+        return ptrBestDirectoryEntry;
     }
 
     void DirectoryTagEntryList::operator<<(std::ifstream& ifs) {
@@ -114,11 +114,7 @@ namespace com::github::coderodde::dtpp4linux {
             i < sz;
             i++) {
             DirectoryTagEntry const& dte = directoryTagEntryList.at(i);
-            ofs << dte.getTagName() << " " << dte.getDirectoryName();
-
-            if (i < sz - 1) {
-                ofs << "\n";
-            }
+            ofs << dte.getTagName() << " " << dte.getDirectoryName() << "\n";
         }
     }
 }

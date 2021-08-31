@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 script_magic="alias ds='source ~/.ds/ds_script'"
 
@@ -38,7 +38,7 @@ add_tag_to_file "docs" "~/Documents"
 add_tag_to_file "down" "~/Downloads"
 add_tag_to_file "root" "/"
 add_tag_to_file "home" "~"
-add_tag_to_file "ds", "~/.ds"
+add_tag_to_file "ds"   "~/.ds"
 
 echo "Done populating the tag file with default tags."
 echo "Copying the script..."

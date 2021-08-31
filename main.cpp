@@ -6,13 +6,13 @@
 #include <fstream>
 #include <string>
 #include <cstring>
-#include <linux/limits.h>
+//#include <linux/limits.h>
 #include <pwd.h>
 #include <unistd.h>
 #include <vector>
 
-using com::github::coderodde::dtpp4linux::DirectoryTagEntry;
-using com::github::coderodde::dtpp4linux::DirectoryTagEntryList;
+using com::github::coderodde::ds4mac::DirectoryTagEntry;
+using com::github::coderodde::ds4mac::DirectoryTagEntryList;
 using std::cerr;
 using std::cout;
 using std::ifstream;
@@ -89,11 +89,11 @@ static string updatePreviousDirectory(
         DirectoryTagEntryList& directoryTagEntryList,
         string& newDirectoryName) {
 
-    DirectoryTagEntry dte = directoryTagEntryList[PREV_TAG_NAME];
+    DirectoryTagEntry* dte = directoryTagEntryList[PREV_TAG_NAME];
 
-    if (dte.getTagName() == PREV_TAG_NAME) {
-        string rv = dte.getDirectoryName();
-        dte.setDirectoryName(newDirectoryName);
+    if (dte->getTagName().compare(PREV_TAG_NAME) == 0) {
+        string rv = dte->getDirectoryName();
+        dte->setDirectoryName(newDirectoryName);
         return rv;
     } else {
         DirectoryTagEntry ndte(PREV_TAG_NAME, newDirectoryName);
@@ -114,7 +114,7 @@ static string getHomeDirectory() {
 ////////////////////////////////////////////////////////////////////// ////
 static string convertDirectoryNameToExactDirectoryName(string dir) {
     if (dir.size() == 0) {
-        throw "The directory namme is empty. This should not happen.";
+        throw "The directory name is empty. This should not happen.";
     }
 
     if (dir[0] != '~') {
@@ -132,10 +132,6 @@ static string convertDirectoryNameToExactDirectoryName(string dir) {
 
     return homeDirectory;
 }
-/*
-static void updatePreviousTag(string& directory) {
-
-}*/
 
 static void checkIfstream(ifstream& ifs) {
     if (!ifs.is_open()) {
@@ -169,14 +165,13 @@ static void jumpToPreviousDirectory() {
     DirectoryTagEntryList directoryTagEntryList;
     ifs >> directoryTagEntryList;
 
-    DirectoryTagEntry directoryTagEntry = directoryTagEntryList[PREV_TAG_NAME];
+    DirectoryTagEntry* directoryTagEntry = directoryTagEntryList[PREV_TAG_NAME];
     string nextPath;
     string currentWorkingDirectory = getCurrentWorkingDirectory();
 
-    if (directoryTagEntry.getTagName() == PREV_TAG_NAME) {
-        nextPath = directoryTagEntry.getDirectoryName();
-        updatePreviousDirectory(directoryTagEntryList, 
-                                currentWorkingDirectory);
+    if (directoryTagEntry->getTagName().compare(PREV_TAG_NAME) == 0)  {
+        nextPath = updatePreviousDirectory(directoryTagEntryList, 
+                                           currentWorkingDirectory);
     } else {
         DirectoryTagEntry prevTagEntry(PREV_TAG_NAME,
                                        currentWorkingDirectory);
@@ -191,6 +186,8 @@ static void jumpToPreviousDirectory() {
 
     directoryTagEntryList >> ofs;
     ofs.close();
+
+    cout << "yeah: " << nextPath << std::endl;
 
     cout << OPERATION_SWITCH_DIRECTORY
          << '\n'
@@ -233,7 +230,7 @@ static void switchDirectory(std::string const& tag) {
     if (directoryTagEntryList.size() == 1) {
         cout << OPERATION_SWITCH_DIRECTORY
              << "\n"
-             << directoryTagEntryList[0].getDirectoryName();
+             << directoryTagEntryList[0]->getDirectoryName();
 
         updatePreviousDirectory(directoryTagEntryList,
                                 currentWorkingDirectory)  ;
@@ -246,7 +243,7 @@ static void switchDirectory(std::string const& tag) {
         ofs.close();
     }
 
-    DirectoryTagEntry bestMatch = directoryTagEntryList[tag];
+    DirectoryTagEntry* bestMatch = directoryTagEntryList[tag];
 
     std::ofstream ofs;
     ofs.open(getTagFilePath(), std::ofstream::out);
@@ -262,7 +259,7 @@ static void switchDirectory(std::string const& tag) {
     cout << OPERATION_SWITCH_DIRECTORY
          << '\n'
          << convertDirectoryNameToExactDirectoryName(
-                bestMatch.getDirectoryName());
+                bestMatch->getDirectoryName());
 }
 
 //// //////////////////////////////////////
@@ -276,11 +273,7 @@ static void listTagsOnly(
     for (size_t index = 0, sz = directoryTagEntryList.size();
          index < sz;
          index++) {
-        cout << directoryTagEntryList.at(index).getTagName();
-
-        if (index < sz - 1) {
-            cout << '\n';
-        }
+        cout << directoryTagEntryList.at(index).getTagName() << "\n";
     }
 }
 
@@ -361,12 +354,17 @@ static void processUpdatePrevious(string& dir) {
     ifs >> directoryTagEntryList;
     ifs.close();
 
-    DirectoryTagEntry previousEntry = directoryTagEntryList[PREV_TAG_NAME];
+    DirectoryTagEntry* previousEntryCandidate = 
+        directoryTagEntryList[PREV_TAG_NAME];
 
-    if (previousEntry.getTagName() == PREV_TAG_NAME) {
-        previousEntry.setDirectoryName(dir);
+    string nextPath;
+
+    if (previousEntryCandidate->getTagName().compare(PREV_TAG_NAME) == 0) {
+        nextPath = previousEntryCandidate->getDirectoryName();
+        previousEntryCandidate->setDirectoryName(dir);
     } else {
         DirectoryTagEntry prevDirectoryTagEntry(PREV_TAG_NAME, dir);
+        nextPath = getCurrentWorkingDirectory();
         directoryTagEntryList << prevDirectoryTagEntry;
     }
 
@@ -375,6 +373,8 @@ static void processUpdatePrevious(string& dir) {
     checkOfstream(ofs);
     directoryTagEntryList >> ofs;
     ofs.close();
+
+    // return nextPath;
 }
 
 int main(int argc, char *argv[]) {
@@ -386,7 +386,7 @@ int main(int argc, char *argv[]) {
         } else if (argc == 3) {
             string flag = argv[1];
 
-            if (flag != FLAG_UPDATE_PREVIOUS) {
+            if (flag.compare(FLAG_UPDATE_PREVIOUS) != 0) {
                 string errorMsg = "Flag ";
                 errorMsg = errorMsg.append(flag);
                 errorMsg = errorMsg.append(" not recognized.");
@@ -396,7 +396,7 @@ int main(int argc, char *argv[]) {
             string dir = argv[2];
             processUpdatePrevious(dir);
         }
-    } catch (const char *const msg) {
+    } catch (char *const msg) {
         cerr << msg << '\n';
         return EXIT_FAILURE;
     }

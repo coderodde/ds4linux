@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 
-namespace com::github::coderodde::dtpp4linux {
+namespace com::github::coderodde::ds4mac {
 
     class DirectoryTagEntry {
     private:

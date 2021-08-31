@@ -8,7 +8,7 @@
 #include "DirectoryTagEntry.h"
 #include <vector>
 
-namespace com::github::coderodde::dtpp4linux {
+namespace com::github::coderodde::ds4mac {
 
     class DirectoryTagEntryList {
     private:
@@ -18,7 +18,7 @@ namespace com::github::coderodde::dtpp4linux {
         const size_t size() const;
         DirectoryTagEntryList& operator<<(DirectoryTagEntry const& directoryTagEntry);
         DirectoryTagEntry at(size_t index) const;
-        DirectoryTagEntry operator[](std::string const& targetDirectoryName);
+        DirectoryTagEntry* operator[](std::string const& targetDirectoryName);
         void operator<<(std::ifstream& ifs);
         void sortByTags();
         void sortByDirectories();

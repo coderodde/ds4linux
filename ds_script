@@ -1,9 +1,12 @@
+echo "Hello from $(pwd)!"
+
 out_file=$(mktemp)
 ~/.ds/ds_engine $@ > $out_file
 command_type=$(head -n 1 $out_file)
 
 if [ $# -eq 0 ]; then
 	next_path=$(tail -n 1 $out_file)
+	echo "UP: \$(pwd) = $(pwd)" >&2
 	~/.ds/ds_engine --update-previous $(pwd)
 	cd $next_path	
 else
@@ -15,6 +18,7 @@ else
 			exit 1
 		fi
 
+     	echo "UP2: \$(pwd) = $(pwd)" >&2
 		~/.ds/ds_engine --update-previous $(pwd)
 		cd $next_path
 	elif [ "$command_type" == "show_tag_entry_list" ]; then
